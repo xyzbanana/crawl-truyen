@@ -83,7 +83,19 @@ def crawl_comic_info(url: str = Query(..., description="Link chi tiết của tr
             }
         }
         
-    except requests.exceptions.Timeout:
-        raise HTTPException(status_code=504, detail="Kết nối đến TruyenQQ bị quá hạn (Timeout).")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Lỗi: {str(e)}")
+        import traceback
+        # In chi tiết lỗi ra tab Logs của Render để bạn xem
+        print("--- CRAWLER CRASH TRACEBACK ---")
+        traceback.print_exc()
+        print("-------------------------------")
+        
+        # Trả về chi tiết lỗi dạng JSON để bạn nhìn thấy ngay trên trình duyệt/Postman
+        raise HTTPException(
+            status_code=500, 
+            detail={
+                "message": "Lỗi hệ thống khi crawl",
+                "error_type": type(e).__name__,
+                "error_details": str(e)
+            }
+        )
