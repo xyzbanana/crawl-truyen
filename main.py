@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-import requests
+from curl_cffi import requests
 from bs4 import BeautifulSoup
 import time
 
@@ -23,17 +23,8 @@ def home():
 @app.get("/api/crawl-info")
 def crawl_comic_info(url: str = Query(..., description="Link chi tiết của truyện tranh từ TruyenQQ")):
     try:
-        # Giả lập Header của trình duyệt Chrome thật để qua mặt bộ lọc cơ bản
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            'Accept-Language': 'vi,en-US;q=0.9,en;q=0.8',
-            'Referer': 'https://truyenqqko.com/',
-            'Connection': 'keep-alive'
-        }
-        
         # Đặt timeout = 15 giây, nếu trang web gốc không phản hồi thì ngắt luôn, không để Render bị treo Loading
-        response = requests.get(url, headers=headers, timeout=15)
+        response = requests.get(url, impersonate="chrome", timeout=15)
         
         if response.status_code != 200:
             raise HTTPException(
